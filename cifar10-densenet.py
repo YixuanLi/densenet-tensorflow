@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
-# File: cifar10-resnet.py
-# Author: Yuxin Wu <ppwwyyxx@gmail.com>
 
 import numpy as np
 import tensorflow as tf
