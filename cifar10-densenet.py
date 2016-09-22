@@ -140,7 +140,7 @@ def get_config():
     sess_config = get_default_sess_config(0.9)
 
     get_global_step_var()
-    lr = tf.Variable(0.01, trainable=False, name='learning_rate')
+    lr = tf.Variable(0.1, trainable=False, name='learning_rate')
     tf.scalar_summary('learning_rate', lr)
 
     return TrainConfig(
