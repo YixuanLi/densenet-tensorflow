@@ -18,9 +18,11 @@ http://arxiv.org/abs/1608.06993
 BATCH_SIZE = 128
 
 class Model(ModelDesc):
-    def __init__(self, n):
+    def __init__(self, depth):
         super(Model, self).__init__()
-        self.n = n
+        self.N = int((depth - 4)  / 3)
+        self.growthRate =12 
+        #self.dropRate = 0 
 
     def _get_input_vars(self):
         return [InputVar(tf.float32, [None, 32, 32, 3], 'input'),
@@ -35,79 +37,73 @@ class Model(ModelDesc):
             return Conv2D(name, l, channel, 3, stride=stride,
                           nl=tf.identity, use_bias=False,
                           W_init=tf.random_normal_initializer(stddev=np.sqrt(2.0/9/channel)))
+        def add_layer(name, l):
+            shape = l.get_shape().as_list()
+            in_channel = shape[3]
+            with tf.variable_scope(name) as scope:
+                c = BatchNorm('bn1', l)
+                c = tf.nn.relu(c)
+                c = conv('conv1', c, self.growthRate, 1)
+                l = tf.concat(1, c, l)
+            return l
+
+        def add_transition(name, l):
+            shape = l.get_shape().as_list()
+            in_channel = shape[3]
+            with tf.variable_scope(name) as scope:
+                l = BatchNorm('bn1', l)
+                l = tf.nn.relu(l)
+                l = Conv2D('conv1', l, in_channel, 1, stride=1, use_bias=False)
+                l = AvgPooling('pool', l, 2)
+            return l
+
 
         def dense_net(name):
-            # TODO
-                
+            l = conv('conv0', image, 16, 1)
+            with tf.variable_scope('block1') as scope:
 
-        # def residual(name, l, increase_dim=False, first=False):
-        #     shape = l.get_shape().as_list()
-        #     in_channel = shape[3]
+                for i in range(1, self.N):
+                    l = add_layer('dense_layer.{}'.format(i), l)
+                l = add_transition('transition1', l)
+            
+            with tf.variable_scope('block2') as scope:
 
-        #     if increase_dim:
-        #         out_channel = in_channel * 2
-        #         stride1 = 2
-        #     else:
-        #         out_channel = in_channel
-        #         stride1 = 1
+                for i in range(1, self.N):
+                    l = add_layer('dense_layer.{}'.format(i), l)
+                l = add_transition('transition2', l)
 
-        #     with tf.variable_scope(name) as scope:
-        #         if not first:
-        #             b1 = BatchNorm('bn1', l)
-        #             b1 = tf.nn.relu(b1)
-        #         else:
-        #             b1 = l
-        #         c1 = conv('conv1', b1, out_channel, stride1)
-        #         b2 = BatchNorm('bn2', c1)
-        #         b2 = tf.nn.relu(b2)
-        #         c2 = conv('conv2', b2, out_channel, 1)
+            with tf.variable_scope('block3') as scope:
 
-        #         if increase_dim:
-        #             l = AvgPooling('pool', l, 2)
-        #             l = tf.pad(l, [[0,0], [0,0], [0,0], [in_channel//2, in_channel//2]])
+                for i in range(1, self.N):
+                    l = add_layer('dense_layer.{}'.format(i), l)
+                l = add_transition('transition3', l)
+            l = BatchNorm('bnlast', l)
+            l = tf.nn.relu(l)
+            l = GlobalAvgPooling('gap', l)
+            logits = FullyConnected('linear', l, out_dim=10, nl=tf.identity)
 
-        #         l = c2 + l
-        #         return l
+            return logits
 
-        # l = conv('conv0', image, 16, 1)
-        # l = BatchNorm('bn0', l)
-        # l = tf.nn.relu(l)
-        # l = residual('res1.0', l, first=True)
-        # for k in range(1, self.n):
-        #     l = residual('res1.{}'.format(k), l)
-        # # 32,c=16
+        logits = dense_net("dense_net")
+        
+        prob = tf.nn.softmax(logits, name='output')
 
-        # l = residual('res2.0', l, increase_dim=True)
-        # for k in range(1, self.n):
-        #     l = residual('res2.{}'.format(k), l)
-        # # 16,c=32
+        cost = tf.nn.sparse_softmax_cross_entropy_with_logits(logits, label)
+        cost = tf.reduce_mean(cost, name='cross_entropy_loss')
 
-        # l = residual('res3.0', l, increase_dim=True)
-        # for k in range(1, self.n):
-        #     l = residual('res3.' + str(k), l)
-        # l = BatchNorm('bnlast', l)
-        # l = tf.nn.relu(l)
-        # # 8,c=64
-        # l = GlobalAvgPooling('gap', l)
-        # logits = FullyConnected('linear', l, out_dim=10, nl=tf.identity)
-        # prob = tf.nn.softmax(logits, name='output')
+        wrong = prediction_incorrect(logits, label)
+        nr_wrong = tf.reduce_sum(wrong, name='wrong')
+        # monitor training error
+        add_moving_summary(tf.reduce_mean(wrong, name='train_error'))
 
-        # cost = tf.nn.sparse_softmax_cross_entropy_with_logits(logits, label)
-        # cost = tf.reduce_mean(cost, name='cross_entropy_loss')
+        # weight decay on all W of fc layers
+        wd_w = tf.train.exponential_decay(0.0002, get_global_step_var(),
+                                          480000, 0.2, True)
+        wd_cost = tf.mul(wd_w, regularize_cost('.*/W', tf.nn.l2_loss), name='wd_cost')
+        add_moving_summary(cost, wd_cost)
 
-        # wrong = prediction_incorrect(logits, label)
-        # nr_wrong = tf.reduce_sum(wrong, name='wrong')
-        # # monitor training error
-        # add_moving_summary(tf.reduce_mean(wrong, name='train_error'))
-
-        # # weight decay on all W of fc layers
-        # wd_w = tf.train.exponential_decay(0.0002, get_global_step_var(),
-        #                                   480000, 0.2, True)
-        # wd_cost = tf.mul(wd_w, regularize_cost('.*/W', tf.nn.l2_loss), name='wd_cost')
-        # add_moving_summary(cost, wd_cost)
-
-        # add_param_summary([('.*/W', ['histogram'])])   # monitor W
-        # self.cost = tf.add_n([cost, wd_cost], name='cost')
+        add_param_summary([('.*/W', ['histogram'])])   # monitor W
+        self.cost = tf.add_n([cost, wd_cost], name='cost')
 
 
 def get_data(train_or_test):
@@ -160,7 +156,7 @@ def get_config():
                                       [(1, 0.1), (args.drop_1, 0.01), (args.drop_2, 0.001), (150, 0.0002)])
         ]),
         session_config=sess_config,
-        model=Model(n=18),
+        model=Model(depth=40),
         step_per_epoch=step_per_epoch,
         max_epoch=args.max_epoch,
     )
