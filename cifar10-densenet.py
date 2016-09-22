@@ -13,16 +13,8 @@ from tensorpack.tfutils.symbolic_functions import *
 from tensorpack.tfutils.summary import *
 
 """
-CIFAR10 ResNet example. See:
-Deep Residual Learning for Image Recognition, arxiv:1512.03385
-This implementation uses the variants proposed in:
-Identity Mappings in Deep Residual Networks, arxiv:1603.05027
-
-I can reproduce the results on 2 TitanX for
-n=5, about 7.1% val error after 67k step (8.6 step/s)
-n=18, about 5.7% val error (2.45 step/s)
-n=30: a 182-layer network, about 5.6% val error after 51k step (1.55 step/s)
-This model uses the whole training set instead of a train-val split.
+CIFAR10 DenseNet example. See 
+http://arxiv.org/abs/1608.06993
 """
 
 BATCH_SIZE = 128
@@ -144,7 +136,6 @@ def get_data(train_or_test):
     return ds
 
 def get_config():
-    #logger.auto_set_dir()
     log_dir = 'train_log/cifar10-single-fisrt%s-second%s-max%s' % (str(args.drop_1), str(args.drop_2), str(args.max_epoch))
     logger.set_logger_dir(log_dir, action='n')
 
@@ -152,7 +143,6 @@ def get_config():
     dataset_train = get_data('train')
     step_per_epoch = dataset_train.size()
     dataset_test = get_data('test')
-    #dataset_val = get_data('val')
 
     sess_config = get_default_sess_config(0.9)
 
