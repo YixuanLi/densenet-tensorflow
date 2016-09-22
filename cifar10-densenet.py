@@ -15,7 +15,7 @@ CIFAR10 DenseNet example. See
 http://arxiv.org/abs/1608.06993
 """
 
-BATCH_SIZE = 128
+BATCH_SIZE = 64
 
 class Model(ModelDesc):
     def __init__(self, depth):
@@ -44,7 +44,7 @@ class Model(ModelDesc):
                 c = BatchNorm('bn1', l)
                 c = tf.nn.relu(c)
                 c = conv('conv1', c, self.growthRate, 1)
-                l = tf.concat(1, c, l)
+                l = tf.concat(3, [c, l])
             return l
 
         def add_transition(name, l):
@@ -62,21 +62,20 @@ class Model(ModelDesc):
             l = conv('conv0', image, 16, 1)
             with tf.variable_scope('block1') as scope:
 
-                for i in range(1, self.N):
+                for i in range(self.N):
                     l = add_layer('dense_layer.{}'.format(i), l)
                 l = add_transition('transition1', l)
             
             with tf.variable_scope('block2') as scope:
 
-                for i in range(1, self.N):
+                for i in range(self.N):
                     l = add_layer('dense_layer.{}'.format(i), l)
                 l = add_transition('transition2', l)
 
             with tf.variable_scope('block3') as scope:
 
-                for i in range(1, self.N):
+                for i in range(self.N):
                     l = add_layer('dense_layer.{}'.format(i), l)
-                l = add_transition('transition3', l)
             l = BatchNorm('bnlast', l)
             l = tf.nn.relu(l)
             l = GlobalAvgPooling('gap', l)
@@ -97,9 +96,9 @@ class Model(ModelDesc):
         add_moving_summary(tf.reduce_mean(wrong, name='train_error'))
 
         # weight decay on all W of fc layers
-        wd_w = tf.train.exponential_decay(0.0002, get_global_step_var(),
-                                          480000, 0.2, True)
-        wd_cost = tf.mul(wd_w, regularize_cost('.*/W', tf.nn.l2_loss), name='wd_cost')
+        #wd_w = tf.train.exponential_decay(0.0002, get_global_step_var(),
+        #                                  480000, 0.2, True)
+        wd_cost = tf.mul(1e-4, regularize_cost('.*/W', tf.nn.l2_loss), name='wd_cost')
         add_moving_summary(cost, wd_cost)
 
         add_param_summary([('.*/W', ['histogram'])])   # monitor W
