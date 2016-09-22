@@ -165,9 +165,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', help='comma separated list of GPU(s) to use.') # nargs='*' in multi mode
     parser.add_argument('--load', help='load model')
-    parser.add_argument('--drop_1',help='comma separated list of GPU(s) to use.') # nargs='*' in multi mode
-    parser.add_argument('--drop_2',help='load model')
-    parser.add_argument('--max_epoch',help='max epoch')
+    parser.add_argument('--drop_1',default=150, help='comma separated list of GPU(s) to use.') # nargs='*' in multi mode
+    parser.add_argument('--drop_2',default=225,help='load model')
+    parser.add_argument('--max_epoch',default=300,help='max epoch')
     args = parser.parse_args()
 
     if args.gpu:
