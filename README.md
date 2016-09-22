@@ -1,7 +1,7 @@
 # DenseNet-tensorflow
 This repository contains the tensorflow implementation for the paper [Densely Connected Convolutional Networks](http://arxiv.org/abs/1608.06993). 
 
-The code is developed based on Yuxin Wang's implementation of ResNet (https://github.com/ppwwyyxx/tensorpack/tree/master/examples/ResNet).
+The code is developed based on Yuxin Wu's implementation of ResNet (https://github.com/ppwwyyxx/tensorpack/tree/master/examples/ResNet).
 
 Citation:
 
