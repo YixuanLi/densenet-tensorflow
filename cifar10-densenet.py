@@ -123,7 +123,7 @@ def get_data(train_or_test):
             imgaug.MapImage(lambda x: x - pp_mean)
         ]
     ds = AugmentImageComponent(ds, augmentors)
-    ds = BatchData(ds, 128, remainder=not isTrain)
+    ds = BatchData(ds, BATCH_SIZE, remainder=not isTrain)
     if isTrain:
         ds = PrefetchData(ds, 3, 2)
     return ds
