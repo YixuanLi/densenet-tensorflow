@@ -22,7 +22,6 @@ class Model(ModelDesc):
         super(Model, self).__init__()
         self.N = int((depth - 4)  / 3)
         self.growthRate =12 
-        #self.dropRate = 0 
 
     def _get_input_vars(self):
         return [InputVar(tf.float32, [None, 32, 32, 3], 'input'),
@@ -96,8 +95,6 @@ class Model(ModelDesc):
         add_moving_summary(tf.reduce_mean(wrong, name='train_error'))
 
         # weight decay on all W of fc layers
-        #wd_w = tf.train.exponential_decay(0.0002, get_global_step_var(),
-        #                                  480000, 0.2, True)
         wd_cost = tf.mul(1e-4, regularize_cost('.*/W', tf.nn.l2_loss), name='wd_cost')
         add_moving_summary(cost, wd_cost)
 
@@ -155,7 +152,7 @@ def get_config():
                                       [(1, 0.1), (args.drop_1, 0.01), (args.drop_2, 0.001), (150, 0.0002)])
         ]),
         session_config=sess_config,
-        model=Model(depth=40),
+        model=Model(depth=args.depth),
         step_per_epoch=step_per_epoch,
         max_epoch=args.max_epoch,
     )
@@ -164,8 +161,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', help='comma separated list of GPU(s) to use.') # nargs='*' in multi mode
     parser.add_argument('--load', help='load model')
-    parser.add_argument('--drop_1',default=150, help='comma separated list of GPU(s) to use.') # nargs='*' in multi mode
-    parser.add_argument('--drop_2',default=225,help='load model')
+    parser.add_argument('--drop_1',default=150, help='Epoch to drop learning rate to 0.01.') # nargs='*' in multi mode
+    parser.add_argument('--drop_2',default=225,help='Epoch to drop learning rate to 0.001')
+    parser.add_argument('--depth',default=40, help='The depth of densenet')
     parser.add_argument('--max_epoch',default=300,help='max epoch')
     args = parser.parse_args()
 
