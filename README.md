@@ -28,3 +28,8 @@ In our experiment environment (cudnn v5.1, CUDA 7.5, one TITAN X GPU), the code 
 ## Training curves on CIFAR-10
 
 TO BE ADDED...
+
+
+## Questions?
+
+Please drop [me](http://www.cs.cornell.edu/~yli) a line if you have any questions!
