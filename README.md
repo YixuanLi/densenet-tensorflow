@@ -33,7 +33,7 @@ In our experiment environment (cudnn v5.1, CUDA 7.5, one TITAN X GPU), the code 
 
 ![cifar100](cifar100.png)
 
-## Differences compared to the original [torch implementation] (https://github.com/liuzhuang13/DenseNet)?
+## Differences compared to the original [torch implementation] (https://github.com/liuzhuang13/DenseNet)
 + Preprocessing is not channel-wise, instead we use mean and variances of images instead. 
 + The decay of batch normalization is set to be 0.9 here, whereas torch version uses 0.9999.
 
