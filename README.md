@@ -35,7 +35,7 @@ In our experiment environment (cudnn v5.1, CUDA 7.5, one TITAN X GPU), the code 
 
 ## Differences compared to the original [torch implementation] (https://github.com/liuzhuang13/DenseNet)
 + Preprocessing is not channel-wise, instead we use mean and variances of images instead. 
-+ The decay of batch normalization is set to be 0.9 here, whereas torch version uses 0.9999.
++ There is no momentum and weight decay applied on the batch normalization parameters (gamma and beta), whereas torch vertison uses both momentum and weight decay on those.
 
 ## Questions?
 
