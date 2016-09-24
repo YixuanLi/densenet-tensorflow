@@ -25,11 +25,11 @@ python cifar10-densenet.py
 ```
 In our experiment environment (cudnn v5.1, CUDA 7.5, one TITAN X GPU), the code runs with speed 5iters/s when batch size is set to be 64. The hyperparameters are identical to the original [torch implementation] (https://github.com/liuzhuang13/DenseNet). 
 
-## Training curves on CIFAR-10
+## Training curves on CIFAR-10 (~5.77% after 300 epochs)
 
 ![cifar10](cifar10.png)
 
-## Training curves on CIFAR-100
+## Training curves on CIFAR-100 (~26.36% after 300 epochs)
 
 ![cifar100](cifar100.png)
 
