@@ -5,6 +5,7 @@ import numpy as np
 import tensorflow as tf
 import argparse
 import os
+#from keras.optimizers import SGD
 
 from tensorpack import *
 from tensorpack.tfutils.symbolic_functions import *
@@ -142,14 +143,14 @@ def get_config():
 
     return TrainConfig(
         dataset=dataset_train,
-        optimizer=tf.train.MomentumOptimizer(lr, 0.9),
+        optimizer=tf.train.MomentumOptimizer(lr, 0.9, use_nesterov=True),
         callbacks=Callbacks([
             StatPrinter(),
             ModelSaver(),
             InferenceRunner(dataset_test,
                 [ScalarStats('cost'), ClassificationError()]),
             ScheduledHyperParamSetter('learning_rate',
-                                      [(1, 0.1), (args.drop_1, 0.01), (args.drop_2, 0.001), (150, 0.0002)])
+                                      [(1, 0.1), (args.drop_1, 0.01), (args.drop_2, 0.001)])
         ]),
         session_config=sess_config,
         model=Model(depth=args.depth),
