@@ -99,7 +99,7 @@ class Model(ModelDesc):
         # monitor training error
         add_moving_summary(tf.reduce_mean(wrong, name='train_error'))
 
-        # weight decay on all W of fc layers
+        # weight decay on all W
         wd_cost = tf.mul(1e-4, regularize_cost('.*/W', tf.nn.l2_loss), name='wd_cost')
         add_moving_summary(cost, wd_cost)
 
