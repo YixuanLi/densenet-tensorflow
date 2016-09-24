@@ -5,15 +5,19 @@ import numpy as np
 import tensorflow as tf
 import argparse
 import os
-#from keras.optimizers import SGD
+
 
 from tensorpack import *
 from tensorpack.tfutils.symbolic_functions import *
 from tensorpack.tfutils.summary import *
 
 """
-CIFAR10 DenseNet example. See 
-http://arxiv.org/abs/1608.06993
+CIFAR10 DenseNet example. See: http://arxiv.org/abs/1608.06993
+Code is developed based on Yuxin Wu's ResNet implementation: https://github.com/ppwwyyxx/tensorpack/tree/master/examples/ResNet
+Results using DenseNet (L=40, K=12) on Cifar10 with data augmentation: ~5.77% test error.
+
+Running time:
+On one TITAN X GPU (CUDA 7.5 and cudnn 5.1), the code should run ~5iters/s on a batch size 64.  
 """
 
 BATCH_SIZE = 64
