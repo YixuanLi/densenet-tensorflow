@@ -27,8 +27,11 @@ In our experiment environment (cudnn v5.1, CUDA 7.5, one TITAN X GPU), the code 
 
 ## Training curves on CIFAR-10
 
-TO BE ADDED...
+![cifar10](cifar10.png)
 
+## Training curves on CIFAR-100
+
+![cifar100](cifar100.png)
 
 ## Questions?
 
