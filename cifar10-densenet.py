@@ -57,7 +57,7 @@ class Model(ModelDesc):
             with tf.variable_scope(name) as scope:
                 l = BatchNorm('bn1', l)
                 l = tf.nn.relu(l)
-                l = Conv2D('conv1', l, in_channel, 1, stride=1, use_bias=False)
+                l = Conv2D('conv1', l, in_channel, 1, stride=1, use_bias=False, nl=tf.nn.relu)
                 l = AvgPooling('pool', l, 2)
             return l
 
