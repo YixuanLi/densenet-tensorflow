@@ -91,7 +91,7 @@ class Model(ModelDesc):
         
         prob = tf.nn.softmax(logits, name='output')
 
-        cost = tf.nn.sparse_softmax_cross_entropy_with_logits(logits, label)
+        cost = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=label)
         cost = tf.reduce_mean(cost, name='cross_entropy_loss')
 
         wrong = prediction_incorrect(logits, label)
@@ -99,10 +99,10 @@ class Model(ModelDesc):
         add_moving_summary(tf.reduce_mean(wrong, name='train_error'))
 
         # weight decay on all W
-        wd_cost = tf.mul(1e-4, regularize_cost('.*/W', tf.nn.l2_loss), name='wd_cost')
+        wd_cost = tf.multiply(1e-4, regularize_cost('.*/W', tf.nn.l2_loss), name='wd_cost')
         add_moving_summary(cost, wd_cost)
 
-        add_param_summary([('.*/W', ['histogram'])])   # monitor W
+        add_param_summary(('.*/W', ['histogram']))   # monitor W
         self.cost = tf.add_n([cost, wd_cost], name='cost')
 
 
@@ -145,16 +145,15 @@ def get_config():
     tf.scalar_summary('learning_rate', lr)
 
     return TrainConfig(
-        dataset=dataset_train,
+        dataflow=dataset_train,
         optimizer=tf.train.MomentumOptimizer(lr, 0.9, use_nesterov=True),
-        callbacks=Callbacks([
-            StatPrinter(),
+        callbacks=[
             ModelSaver(),
             InferenceRunner(dataset_test,
                 [ScalarStats('cost'), ClassificationError()]),
             ScheduledHyperParamSetter('learning_rate',
                                       [(1, 0.1), (args.drop_1, 0.01), (args.drop_2, 0.001)])
-        ]),
+        ],
         session_config=sess_config,
         model=Model(depth=args.depth),
         step_per_epoch=step_per_epoch,
