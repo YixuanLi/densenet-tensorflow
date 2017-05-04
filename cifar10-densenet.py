@@ -17,7 +17,7 @@ Code is developed based on Yuxin Wu's ResNet implementation: https://github.com/
 Results using DenseNet (L=40, K=12) on Cifar10 with data augmentation: ~5.77% test error.
 
 Running time:
-On one TITAN X GPU (CUDA 7.5 and cudnn 5.1), the code should run ~5iters/s on a batch size 64.  
+On one TITAN X GPU (CUDA 7.5 and cudnn 5.1), the code should run ~5iters/s on a batch size 64.
 """
 
 BATCH_SIZE = 64
@@ -26,11 +26,11 @@ class Model(ModelDesc):
     def __init__(self, depth):
         super(Model, self).__init__()
         self.N = int((depth - 4)  / 3)
-        self.growthRate =12 
+        self.growthRate =12
 
-    def _get_input_vars(self):
-        return [InputVar(tf.float32, [None, 32, 32, 3], 'input'),
-                InputVar(tf.int32, [None], 'label')
+    def _get_inputs(self):
+        return [InputDesc(tf.float32, [None, 32, 32, 3], 'input'),
+                InputDesc(tf.int32, [None], 'label')
                ]
 
     def _build_graph(self, input_vars):
@@ -48,7 +48,7 @@ class Model(ModelDesc):
                 c = BatchNorm('bn1', l)
                 c = tf.nn.relu(c)
                 c = conv('conv1', c, self.growthRate, 1)
-                l = tf.concat(3, [c, l])
+                l = tf.concat([c, l], 3)
             return l
 
         def add_transition(name, l):
@@ -69,7 +69,7 @@ class Model(ModelDesc):
                 for i in range(self.N):
                     l = add_layer('dense_layer.{}'.format(i), l)
                 l = add_transition('transition1', l)
-            
+
             with tf.variable_scope('block2') as scope:
 
                 for i in range(self.N):
@@ -88,7 +88,7 @@ class Model(ModelDesc):
             return logits
 
         logits = dense_net("dense_net")
-        
+
         prob = tf.nn.softmax(logits, name='output')
 
         cost = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=label)
@@ -104,6 +104,11 @@ class Model(ModelDesc):
 
         add_param_summary(('.*/W', ['histogram']))   # monitor W
         self.cost = tf.add_n([cost, wd_cost], name='cost')
+
+    def _get_optimizer(self):
+        lr = tf.get_variable('learning_rate', initializer=0.1, trainable=False)
+        tf.summary.scalar('learning_rate', lr)
+        return tf.train.MomentumOptimizer(lr, 0.9, use_nesterov=True)
 
 
 def get_data(train_or_test):
@@ -135,18 +140,11 @@ def get_config():
 
     # prepare dataset
     dataset_train = get_data('train')
-    step_per_epoch = dataset_train.size()
+    steps_per_epoch = dataset_train.size()
     dataset_test = get_data('test')
-
-    sess_config = get_default_sess_config(0.9)
-
-    get_global_step_var()
-    lr = tf.Variable(0.1, trainable=False, name='learning_rate')
-    tf.scalar_summary('learning_rate', lr)
 
     return TrainConfig(
         dataflow=dataset_train,
-        optimizer=tf.train.MomentumOptimizer(lr, 0.9, use_nesterov=True),
         callbacks=[
             ModelSaver(),
             InferenceRunner(dataset_test,
@@ -154,9 +152,8 @@ def get_config():
             ScheduledHyperParamSetter('learning_rate',
                                       [(1, 0.1), (args.drop_1, 0.01), (args.drop_2, 0.001)])
         ],
-        session_config=sess_config,
         model=Model(depth=args.depth),
-        step_per_epoch=step_per_epoch,
+        steps_per_epoch=steps_per_epoch,
         max_epoch=args.max_epoch,
     )
 
