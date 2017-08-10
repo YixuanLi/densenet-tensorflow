@@ -5,12 +5,12 @@ The code is developed based on Yuxin Wu's implementation of ResNet (https://gith
 
 Citation:
 
-     @article{Huang2016Densely,
-     		author = {Huang, Gao and Liu, Zhuang and Weinberger, Kilian Q.},
-     		title = {Densely Connected Convolutional Networks},
-     		journal = {arXiv preprint arXiv:1608.06993},
-     		year = {2016}
-     }
+     @inproceedings{huang2017densely,
+          title={Densely connected convolutional networks},
+          author={Huang, Gao and Liu, Zhuang and van der Maaten, Laurens and Weinberger, Kilian Q },
+          booktitle={Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition},
+          year={2017}
+      }
 
 ## Dependencies:
 
