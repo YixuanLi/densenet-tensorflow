@@ -117,8 +117,8 @@ def get_data(train_or_test):
     pp_mean = ds.get_per_pixel_mean()
     if isTrain:
         augmentors = [
-            imgaug.CenterPaste((40, 40)),
-            imgaug.RandomCrop((32, 32)),
+            imgaug.paste.CenterPaste((40, 40)),
+            imgaug.crop.RandomCrop((32, 32)),
             imgaug.Flip(horiz=True),
             #imgaug.Brightness(20),
             #imgaug.Contrast((0.6,1.4)),
