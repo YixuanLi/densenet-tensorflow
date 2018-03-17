@@ -174,10 +174,9 @@ if __name__ == '__main__':
     if args.load:
         config.session_init = SaverRestore(args.load)
     
+    nr_tower = 0
     if args.gpu:
-        config.nr_tower = len(args.gpu.split(','))
-    else:
-        config.nr_tower = 0
+        nr_tower = len(args.gpu.split(','))
     
     # SyncMultiGPUTrainer(config).train()
-    launch_train_with_config(config, SyncMultiGPUTrainer(config.nr_tower))
+    launch_train_with_config(config, SyncMultiGPUTrainer(nr_tower))
