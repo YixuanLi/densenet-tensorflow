@@ -176,4 +176,4 @@ if __name__ == '__main__':
     if args.gpu:
         config.nr_tower = len(args.gpu.split(','))
     # SyncMultiGPUTrainer(config).train()
-    launch_train_with_config(config, SyncMultiGPUTrainer(config))
+    launch_train_with_config(config, SyncMultiGPUTrainer())
