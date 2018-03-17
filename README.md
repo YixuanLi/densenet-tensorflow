@@ -17,6 +17,7 @@ Citation:
 + Python 2 or 3
 + TensorFlow >= 1.0
 + [Tensorpack] (https://github.com/ppwwyyxx/tensorpack)
++ OpenCv-Python
 
 ## Train a DenseNet (L=40, k=12) on CIFAR-10+ using
 
